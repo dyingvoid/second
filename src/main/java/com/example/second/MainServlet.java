@@ -17,7 +17,7 @@ public class MainServlet extends HttpServlet {
             throws ServletException, IOException {
         String main = request.getQueryString();
         if(main == null || main.isBlank()) {
-            response.sendRedirect(request.getRequestURI() + "files?" + "C:/");
+            response.sendRedirect(request.getRequestURI() + OsChecker.GetDefaultPath());
             return;
         }
 
@@ -71,7 +71,7 @@ public class MainServlet extends HttpServlet {
 
     public String getPathBack(HttpServletRequest request){
         String defaultUri = request.getRequestURI() + "?";
-        String defaultLocation = "C:/";
+        String defaultLocation = OsChecker.GetDefaultLocation();
         String path = request.getQueryString();
 
         if(path == null || path.isBlank())
