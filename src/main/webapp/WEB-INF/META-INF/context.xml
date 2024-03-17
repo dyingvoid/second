@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <!-- Other configurations -->
+    <Manager className="org.apache.catalina.session.PersistentManager"
+             saveOnRestart="true"
+             maxIdleBackup="30">
+        <Store className="org.apache.catalina.session.FileStore"
+               directory="C:/sessions"/>
+    </Manager>
+</Context>
+

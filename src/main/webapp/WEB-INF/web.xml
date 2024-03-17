@@ -4,6 +4,9 @@
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
          version="5.0">
     <welcome-file-list>
-        <welcome-file>files</welcome-file>
+        <welcome-file>login</welcome-file>
     </welcome-file-list>
+    <session-config>
+        <session-timeout>30</session-timeout> <!-- Set session timeout in minutes -->
+    </session-config>
 </web-app>

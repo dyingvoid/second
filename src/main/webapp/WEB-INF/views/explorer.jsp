@@ -7,22 +7,27 @@
     <title>Files</title>
 </head>
 <body>
-    <h1><%= request.getAttribute("path")%></h1>
-    <h2><a href=<%=request.getAttribute("back")%>>Go back</a></h2>
-    <h3><%=LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"))%></h3>
-    <ul>
-        <%
-            File[] files = (File[]) request.getAttribute("files");
-            for(File file : files){
-        %>
-                <li>
-                    <a href="files?<%=file.getAbsolutePath().replace("\\", "/")%>">
-                        <%=file.getName()%>
-                    </a>
-                </li>
-        <%
-            }
-        %>
-    </ul>
+<div class="logout">
+    <form action="logout" method="post">
+        <button type="submit" class="lobtn">Log out</button>
+    </form>
+</div>
+<h1><%= request.getAttribute("path")%></h1>
+<h2><a href=<%=request.getAttribute("back")%>>Go back</a></h2>
+<h3><%=LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"))%></h3>
+<ul>
+    <%
+        File[] files = (File[]) request.getAttribute("files");
+        for(File file : files){
+    %>
+            <li>
+                <a href="files?<%=file.getAbsolutePath().replace("\\", "/")%>">
+                    <%=file.getName()%>
+                </a>
+            </li>
+    <%
+        }
+    %>
+</ul>
 </body>
 </html>

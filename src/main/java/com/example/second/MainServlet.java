@@ -1,5 +1,6 @@
 package com.example.second;
 
+import com.example.second.domain.services.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,49 +10,71 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.NotDirectoryException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @WebServlet("/files")
 public class MainServlet extends HttpServlet {
+    private final UserService userService = GlobalManager.userService;
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String sessionId = request.getSession().getId();
+
+        if (userService.getUserBySessionId(sessionId) == null) {
+            response.sendRedirect("login");
+            return;
+        }
+
+        String uri = request.getRequestURI();
         String main = request.getQueryString();
-        if(main == null || main.isBlank()) {
-            response.sendRedirect(request.getRequestURI() + OsChecker.GetDefaultPath());
+        String defaultPath = GlobalManager.getDefaultPath(request);
+        String editedDefaultPath = defaultPath.substring(1);
+
+        Path homeDir = Paths.get(URLDecoder.decode(editedDefaultPath, StandardCharsets.UTF_8));
+
+        if(!Files.exists(homeDir))
+            new File(String.valueOf(homeDir)).mkdirs();
+
+        if (main == null || !main.startsWith(editedDefaultPath)) {
+            response.sendRedirect(uri + defaultPath);
             return;
         }
 
         String path = URLDecoder.decode(main, StandardCharsets.UTF_8);
         File file = new File(path);
 
-        if(file.isDirectory())
-            ListFiles(file, request, response);
+        if (file.isDirectory())
+            listFiles(file, request, response);
         else if (file.isFile())
-            DownloadFile(file, request, response);
+            downloadFile(file, request, response);
         else
             throw new InvalidObjectException("Nor a dir or a file.");
     }
 
-    private void DownloadFile(File file, HttpServletRequest request, HttpServletResponse response)
+    private void downloadFile(File file, HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        if(!file.exists())
+        if (!file.exists())
             throw new FileNotFoundException(file.getName() + "does not exist.");
 
         response.setContentType(getServletContext().getMimeType(file.getAbsolutePath()));
         response.setHeader("Content-disposition", "attachment; filename=\"" + file.getName() + "\"");
 
-        try(InputStream in = new FileInputStream(file);
-            OutputStream out = response.getOutputStream()){
+        try (InputStream in = new FileInputStream(file);
+             OutputStream out = response.getOutputStream()) {
             byte[] buffer = new byte[4096];
             int bytesRead;
 
-            while((bytesRead = in.read(buffer)) > 0){
+            while ((bytesRead = in.read(buffer)) > 0) {
                 out.write(buffer, 0, bytesRead);
             }
         }
     }
 
-    private void ListFiles(File directory, HttpServletRequest request, HttpServletResponse response)
+    private void listFiles(File directory, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setAttribute("path", directory);
         request.setAttribute("files", getFiles(directory.getAbsolutePath()));
@@ -63,23 +86,23 @@ public class MainServlet extends HttpServlet {
     public File[] getFiles(String path) throws NotDirectoryException {
         File dir = new File(path);
 
-        if(!dir.isDirectory())
+        if (!dir.isDirectory())
             throw new NotDirectoryException(path + " is not a directory");
 
         return dir.listFiles();
     }
 
-    public String getPathBack(HttpServletRequest request){
-        String defaultUri = request.getRequestURI() + "?";
-        String defaultLocation = OsChecker.GetDefaultLocation();
+    public String getPathBack(HttpServletRequest request) {
+        String defaultUri = request.getRequestURI();
+        String defaultLocation = GlobalManager.getDefaultPath(request);
         String path = request.getQueryString();
 
-        if(path == null || path.isBlank())
+        if (path == null || path.isBlank())
             return defaultUri + defaultLocation;
 
         int lastSlashIndex = path.lastIndexOf("/");
 
-        if(lastSlashIndex == -1 || lastSlashIndex == path.indexOf("/"))
+        if (lastSlashIndex == -1 || lastSlashIndex == defaultLocation.lastIndexOf("/") - 1)
             return defaultUri + defaultLocation;
 
         return request.getRequestURI() + "?" + path.substring(0, lastSlashIndex);
