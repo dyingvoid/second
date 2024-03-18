@@ -4,10 +4,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
+    <style>
+        <%@include file="css/style.css"%>
+    </style>
     <title>Files</title>
 </head>
 <body>
-<div class="logout">
+<div class="logout" id="logout">
     <form action="logout" method="post">
         <button type="submit" class="lobtn">Log out</button>
     </form>
