@@ -1,6 +1,7 @@
 package com.example.second;
 
 import com.example.second.data.User;
+import com.example.second.domain.services.AuthService;
 import com.example.second.domain.services.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -10,58 +11,51 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Objects;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
-    private final UserService userService = GlobalManager.userService;
+    private final UserService userService = UserService.getInstance();
+    private final AuthService authService = AuthService.getInstance();
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        String sessionId = session.getId();
+        try {
+            if (authService.isLoggedIn(request.getSession())) {
+                response.sendRedirect("files");
+                return;
+            }
 
-        if (userService.getUserBySessionId(sessionId) != null) {
-            response.sendRedirect("files");
-            return;
-        }
-
-        String name = (String) session.getAttribute("name");
-        String password = (String) session.getAttribute("password");
-
-        if (name == null) {
             request.getRequestDispatcher(GlobalManager.getPage("login.jsp"))
                     .forward(request, response);
-        } else {
-            User user = new User(name, password);
-
-            if (userService.getUserByName(name) == null)
-                userService.addUser(user);
-
-            userService.addSession(sessionId, user);
+        } catch (SQLException sqlException) {
+            throw new IllegalStateException(
+                    "Database error:" + sqlException.getMessage()
+            );
         }
     }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        String name = request.getParameter("name");
-        String password = request.getParameter("password");
-        User registeredUser = userService.getUserByName(name);
+            throws ServletException, IOException {
+        try {
+            User user = userService.createUser(request);
 
-        if (Objects.equals(name, registeredUser.getName()) &&
-                Objects.equals(password, registeredUser.getPassword())) {
-            HttpSession session = request.getSession();
-            session.setAttribute("name", name);
-            session.setAttribute("password", password);
+            if(!authService.login(user, request.getSession())){
+                request.setAttribute("error", "Wrong username or password");
+                request.getRequestDispatcher(GlobalManager.getPage("login.jsp"))
+                        .forward(request, response);
 
-            userService.addSession(request.getSession().getId(), registeredUser);
+                return;
+            }
+
             response.sendRedirect("files");
-
-            return;
+        } catch (SQLException sqlException) {
+            throw new IllegalStateException(
+                    "Datanase error:" + sqlException.getMessage()
+            );
         }
-
-        response.sendRedirect("login");
     }
 }

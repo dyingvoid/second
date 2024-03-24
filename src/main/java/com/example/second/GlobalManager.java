@@ -7,8 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
 
 public class GlobalManager {
-    public static UserService userService = new UserService();
-    public static UserRepository userRepository = new UserRepository();
+    public static UserService userService = UserService.getInstance();
 
     public static String getDefaultPath(HttpServletRequest request) {
         String os = System.getProperty("os.name");

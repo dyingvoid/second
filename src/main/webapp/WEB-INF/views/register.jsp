@@ -17,6 +17,10 @@
     <label for="password">Enter password</label>
     <input type="password" name="password" id="password"><br/>
     <button type="submit" class="registerbtn">Register</button>
+    <%if(request.getAttribute("error") != null) {
+    %>
+        <h2><%=(String)request.getAttribute("error")%></h2>
+    <%}%>
 </form>
 </body>
 </html>
