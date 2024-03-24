@@ -31,11 +31,12 @@ public class LoginServlet extends HttpServlet {
         String password = (String) session.getAttribute("password");
 
         if (name == null) {
-            showLoginPage(request, response);
+            request.getRequestDispatcher(GlobalManager.getPage("login.jsp"))
+                    .forward(request, response);
         } else {
             User user = new User(name, password);
 
-            if(userService.getUserByName(name) == null)
+            if (userService.getUserByName(name) == null)
                 userService.addUser(user);
 
             userService.addSession(sessionId, user);
@@ -44,7 +45,7 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
         String name = request.getParameter("name");
         String password = request.getParameter("password");
         User registeredUser = userService.getUserByName(name);
@@ -62,17 +63,5 @@ public class LoginServlet extends HttpServlet {
         }
 
         response.sendRedirect("login");
-    }
-
-    private void showRegisterPage(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        request.getRequestDispatcher(GlobalManager.getPage("register.jsp"))
-                .forward(request, response);
-    }
-
-    private void showLoginPage(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        request.getRequestDispatcher(GlobalManager.getPage("login.jsp"))
-                .forward(request, response);
     }
 }

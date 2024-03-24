@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <!-- Other configurations -->
+    <Manager className="org.apache.catalina.session.PersistentManager"
+             saveOnRestart="true"
+             maxIdleBackup="30">
+        <Store className="org.apache.catalina.session.FileStore"
+               directory="C:/sessions"/>
+    </Manager>
+    <Resource name="jdbc/postgres" auth="Container"
+              type="javax.sql.DataSource" driverClassName="org.postgresql.Driver"
+              url="jdbc:postgresql://127.0.0.1:5432/second"
+              username="postgres" password="1111" maxTotal="20" maxIdle="10"
+              removeAbandonedOnBorrow="true"
+              removeAbandonedOnMaintenance="true"
+              maxWaitMillis="-1"/>
+</Context>
+

@@ -1,10 +1,14 @@
 package com.example.second;
 
+import com.example.second.data.UserRepository;
 import com.example.second.domain.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.sql.SQLException;
+
 public class GlobalManager {
     public static UserService userService = new UserService();
+    public static UserRepository userRepository = new UserRepository();
 
     public static String getDefaultPath(HttpServletRequest request) {
         String os = System.getProperty("os.name");
@@ -25,15 +29,6 @@ public class GlobalManager {
         path += username;
 
         return path;
-    }
-
-    public static String getDefaultLocation() {
-        String os = System.getProperty("os.name");
-
-        if (os.contains("Windows"))
-            return "C:/";
-        else
-            return "/";
     }
 
     public static String getPage(String name) {
