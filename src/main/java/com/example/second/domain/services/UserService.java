@@ -31,7 +31,7 @@ public class UserService {
         String password = request.getParameter("password");
 
         if (!validateFields(name, password))
-            throw new IllegalArgumentException("Can't create user with null fields");
+            throw new IllegalArgumentException("User fields are empty.");
 
         return new User(name, password);
     }

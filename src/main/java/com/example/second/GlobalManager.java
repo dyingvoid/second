@@ -18,9 +18,7 @@ public class GlobalManager {
         else
             path += "?/";
 
-        String username = userService
-                .getUserBySessionId(request.getSession().getId())
-                .getName();
+        String username = (String) request.getSession().getAttribute("name");
 
         if(username == null)
             throw new NullPointerException();

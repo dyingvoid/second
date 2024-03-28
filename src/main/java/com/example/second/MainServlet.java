@@ -1,5 +1,6 @@
 package com.example.second;
 
+import com.example.second.domain.services.AuthService;
 import com.example.second.domain.services.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,19 +15,25 @@ import java.nio.file.Files;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 
 @WebServlet("/files")
 public class MainServlet extends HttpServlet {
     private final UserService userService = GlobalManager.userService;
+    private final AuthService authService = AuthService.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String sessionId = request.getSession().getId();
 
-        if (userService.getUserBySessionId(sessionId) == null) {
-            response.sendRedirect("login");
-            return;
+        try {
+            if (!authService.isLoggedIn(request.getSession())) {
+                response.sendRedirect("login");
+                return;
+            }
+        } catch (SQLException ex){
+            response.sendRedirect("error");
         }
 
         String uri = request.getRequestURI();

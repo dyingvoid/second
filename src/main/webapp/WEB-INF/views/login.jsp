@@ -19,5 +19,9 @@
     <input type="password" name="password" id="password"><br/>
     <button type="submit" class="registerbtn">Login</button>
 </form>
+<%if(request.getAttribute("error") != null) {
+%>
+<h2><%=(String)request.getAttribute("error")%></h2>
+<%}%>
 </body>
 </html>

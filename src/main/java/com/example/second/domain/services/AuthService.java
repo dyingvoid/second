@@ -13,13 +13,10 @@ import java.util.Objects;
 public class AuthService {
     private static volatile AuthService instance = null;
     private static final Object mutex = new Object();
-
-    private Map<String, User> sessions;
     private UserRepository userRepository;
     private UserService userService;
 
     private AuthService() {
-        sessions = new HashMap<>();
         userRepository = UserRepository.getInstance();
         userService = GlobalManager.userService;
     }
@@ -54,7 +51,6 @@ public class AuthService {
 
         session.setAttribute("name", user.getName());
         session.setAttribute("password", user.getPassword());
-        sessions.putIfAbsent(session.getId(), user);
 
         return true;
     }
@@ -64,10 +60,6 @@ public class AuthService {
 
         if(name == null)
             return false;
-
-        if(sessions.containsKey(session.getId())){
-            return true;
-        }
 
         User user = userRepository.findUserByName(name);
 
@@ -79,5 +71,12 @@ public class AuthService {
         }
 
         return Objects.equals(user.getPassword(), session.getAttribute("password"));
+    }
+
+    public void logout(HttpSession session) {
+        if(session == null)
+            return;
+
+        session.invalidate();
     }
 }

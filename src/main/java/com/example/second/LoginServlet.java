@@ -56,6 +56,9 @@ public class LoginServlet extends HttpServlet {
             throw new IllegalStateException(
                     "Datanase error:" + sqlException.getMessage()
             );
+        } catch (IllegalArgumentException exception){
+            request.setAttribute("error", "User fields are empty.");
+            request.getRequestDispatcher(GlobalManager.getPage("login.jsp")).forward(request, response);
         }
     }
 }
